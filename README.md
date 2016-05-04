@@ -14,9 +14,9 @@ Show exactly the opposite:
 
 ```./select-scratchpad.rb --instance "^urxvt$" --title "VIM" --not```
 
-Only show scratchpad window whose title does not start with 'README':
+Only show scratchpad window whose mark matches 'scratched':
 
-```./select-scratchpad.rb -t "^(?\!README)"```
+```./select-scratchpad.rb --mark "scratched"```
 
 ## options
 
@@ -25,6 +25,7 @@ Usage: ./select-scratchpad.rb options
     -t, --title                      specify title regex
     -c, --class                      specify class regex
     -i, --instance                   specify instance regex
+    -m, --mark                       specify mark regex
     -n, --not                        invert the match
     -h, --help                       show this message
 ```

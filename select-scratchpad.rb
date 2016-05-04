@@ -15,6 +15,9 @@ OptionParser.new do |opts|
   opts.on('-i', '--instance', true, 'specify instance regex') do |regex|
     @options[:instance] = regex
   end
+  opts.on('-m', '--mark', true, 'specify mark regex') do |regex|
+    @options[:mark] = regex
+  end
   opts.on('-n', '--not', 'invert the match') do
     @options[:not] = true
   end
@@ -24,36 +27,36 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-def is_leaf(node)
-  node.type == "con" && (node.nodes + node.floating_nodes).empty?
+def leaf?(node)
+  node.type == 'con' && (node.nodes + node.floating_nodes).empty?
 end
 
-def match_prop?(node, sym)
-  props = node.window_properties
-  if @options[sym]
-    props.send(sym) =~ /#{@options[sym]}/
-  else
-    true
+def match_prop?(obj, prop)
+  !@options[prop] || obj.send(prop) =~ /#{@options[prop]}/
+end
+
+def match_mark?(node)
+  !@options[:mark] || node.respond_to?(:marks) && node.marks.any? do |value|
+    value =~ /#{@options[:mark]}/
   end
 end
 
 def match?(node)
-  matches = [:title, :class, :instance].all? do |sym|
-    match_prop?(node, sym)
+  win_matches = [:title, :class, :instance].all? do |sym|
+    match_prop?(node.window_properties, sym)
   end
 
+  matches = win_matches && match_mark?(node)
   @options[:not] ? !matches : matches
 end
 
 def find_in_tree(nodes)
   nodes.each do |node|
-    if yield(node)
-      return node
-    else
-      nodes = node.nodes + node.floating_nodes
-      found = find_in_tree(nodes) { |n| yield(n) }
-      return found if found
-    end
+    return node if yield(node)
+
+    nodes = node.nodes + node.floating_nodes
+    found = find_in_tree(nodes) { |n| yield(n) }
+    return found if found
   end
 
   nil
@@ -61,29 +64,29 @@ end
 
 def find_focused(nodes)
   find_in_tree(nodes) do |node|
-    is_leaf(node) and node.focused
+    leaf?(node) && node.focused
   end
 end
 
 def find_first_match(nodes)
   find_in_tree(nodes) do |node|
-    is_leaf(node) and match?(node)
+    leaf?(node) && match?(node)
   end
 end
 
 def find_scratchpad(nodes)
   find_in_tree(nodes) do |node|
-    node.type == "workspace" and node.name == "__i3_scratch"
+    node.type == 'workspace' && node.name == '__i3_scratch'
   end
 end
 
 def find_visible_scratchpad_window(nodes)
   found = find_in_tree(nodes) do |wrap|
-    if wrap.scratchpad_state == "none"
+    if wrap.scratchpad_state == 'none'
       false
     else
       node = wrap.nodes[0]
-      node and is_leaf(node) and match?(node)
+      node && leaf?(node) && match?(node)
     end
   end
 
@@ -93,12 +96,12 @@ end
 i3 = I3Ipc::Connection.new
 
 tree = i3.tree
-internal,external = tree.nodes.partition { |n| n.name.start_with?("__i3") }
+internal, external = tree.nodes.partition { |n| n.name.start_with?('__i3') }
 focused = find_focused(external)
 scratchpad_window = find_visible_scratchpad_window(external)
 if scratchpad_window
   if scratchpad_window == focused
-    i3.command("move scratchpad")
+    i3.command('move scratchpad')
   else
     i3.command("[con_id=#{scratchpad_window.id}] move workspace current, focus")
   end
