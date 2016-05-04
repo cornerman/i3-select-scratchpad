@@ -2,21 +2,21 @@
 
 Select matched scratchpad window
 
-Can be used instead of `scratchpad show` in i3. If no arguments are given, it should behave just like the builtin command. Otherwise it will show the next window in the scratchpad which matches the given `title/class/instance` regex.
+Can be used instead of `scratchpad show` in i3. If no arguments are given, it should behave just like the builtin command. Otherwise it will show the next window in the scratchpad which matches the given `title/class/instance` regex. Use `move scratchpad` as you would normally do.
 
 ## usage
 
 Only show scratchpad urxvt window with 'VIM' in its title:
 
-```./select-scratchpad --instance "^urxvt$" --title "VIM"```
+```./select-scratchpad.rb --instance "^urxvt$" --title "VIM"```
 
 Show exactly the opposite:
 
-```./select-scratchpad --instance "^urxvt$" --title "VIM" --not```
+```./select-scratchpad.rb --instance "^urxvt$" --title "VIM" --not```
 
 Only show scratchpad window whose title does not start with 'README':
 
-```./select-scratchpad -t "^(?\!README)"```
+```./select-scratchpad.rb -t "^(?\!README)"```
 
 ## options
 
