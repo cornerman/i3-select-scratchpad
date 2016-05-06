@@ -27,6 +27,7 @@ Usage: ./select-scratchpad.rb options
     -i, --instance                   specify instance regex
     -m, --mark                       specify mark regex
     -n, --not                        invert the match
+    -a, --any-visible                match any visible scratchpad window
     -h, --help                       show this message
 ```
 

@@ -21,6 +21,9 @@ OptionParser.new do |opts|
   opts.on('-n', '--not', 'invert the match') do
     @options[:not] = true
   end
+  opts.on('-a', '--any-visible', 'match any visible scratchpad window') do
+    @options[:any_visible] = true
+  end
   opts.on_tail('-h', '--help', 'show this message') do
     puts opts
     exit
@@ -86,7 +89,7 @@ def find_visible_scratchpad_window(nodes)
       false
     else
       node = wrap.nodes[0]
-      node && leaf?(node) && match?(node)
+      node && leaf?(node) && (@options[:any_visible] || match?(node))
     end
   end
 
